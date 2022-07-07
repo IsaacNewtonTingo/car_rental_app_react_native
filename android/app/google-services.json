@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1091887972675",
+    "project_id": "car-hire-app-rn",
+    "storage_bucket": "car-hire-app-rn.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1091887972675:android:cbe769c5a8c9caafd8eff6",
+        "android_client_info": {
+          "package_name": "com.car_rental_app_rn"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1091887972675-7bu9gcul188vqug99135e577hp12m16d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA6kQvlzcbF8fHZ0vwQQGfp2uU0fz5fqMs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1091887972675-7bu9gcul188vqug99135e577hp12m16d.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
