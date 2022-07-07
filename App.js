@@ -1,12 +1,12 @@
-import {StyleSheet, Text, View} from 'react-native';
 import React from 'react';
+
+import {NavigationContainer} from '@react-navigation/native';
+import TabNavigator from './app/navigators/tabNavigator';
 
 export default function App() {
   return (
-    <View>
-      <Text>App</Text>
-    </View>
+    <NavigationContainer>
+      <TabNavigator />
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({});
