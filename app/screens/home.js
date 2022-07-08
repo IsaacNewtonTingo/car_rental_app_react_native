@@ -14,10 +14,11 @@ import colors from '../components/colors';
 const {width} = Dimensions.get('window');
 
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import Entypo from 'react-native-vector-icons/Entypo';
+import Fontisto from 'react-native-vector-icons/Fontisto';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import Feather from 'react-native-vector-icons/Feather';
 
-export default function Home() {
+export default function Home({navigation}) {
   const B = props => (
     <Text style={{color: colors.orange}}>{props.children}</Text>
   );
@@ -37,7 +38,11 @@ export default function Home() {
           size={20}
           color={colors.gray}
         />
-        <TextInput style={styles.searchInput} />
+        <TextInput
+          placeholder="Search for a car ..."
+          style={styles.searchInput}
+          placeholderTextColor="gray"
+        />
       </View>
 
       <View style={styles.featuredAndViewAll}>
@@ -52,75 +57,133 @@ export default function Home() {
         horizontal
         showsHorizontalScrollIndicator={false}
         style={styles.featuredCarsScrollView}>
-        <TouchableOpacity style={styles.featuredCarContainer}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('CarDetails')}
+          style={styles.featuredCarContainer}>
           <Image
             style={styles.featuredCarImg}
             source={require('../assets/images/audirs7.jpg')}
           />
           <View style={styles.featuredData}>
-            <Text style={[styles.featdataText, {color: colors.orange}]}>
-              <Ionicons name="car-sport" size={20} color={colors.gray} />
-              {'  '}
-              Audi RS 7 - (5 seater)
-            </Text>
-            <Text style={styles.featdataText}>
-              <Ionicons name="person" size={20} color={colors.gray} />
-              {'  '}
-              Hensel Johns
-            </Text>
-            <Text style={styles.featdataText}>
-              <Ionicons name="person" size={20} color={colors.gray} />
-              {'  '}0724753175
-            </Text>
-            <Text style={styles.featdataText}>
-              <Ionicons name="person" size={20} color={colors.gray} />
-              {'  '}
-              3000 / day
-            </Text>
-            <Text style={styles.featdataText}>
-              <Ionicons name="location" size={20} color={colors.gray} />
-              {'  '}
-              Nairobi, Kenya
-            </Text>
+            <View style={styles.iconAndDescCont}>
+              <Ionicons
+                style={{marginRight: 10}}
+                name="car-sport"
+                size={20}
+                color={colors.gray}
+              />
+              <Text style={[styles.featdataText, {color: colors.orange}]}>
+                Audi RS 7
+              </Text>
+            </View>
+
+            <View style={styles.iconAndDescCont}>
+              <Ionicons
+                style={{marginRight: 10}}
+                name="person"
+                size={20}
+                color={colors.gray}
+              />
+              <Text style={styles.featdataText}>Hensel Johns</Text>
+            </View>
+
+            <View style={styles.iconAndDescCont}>
+              <Entypo
+                style={{marginRight: 10}}
+                name="old-phone"
+                size={20}
+                color={colors.gray}
+              />
+              <Text style={styles.featdataText}>0724753175</Text>
+            </View>
+
+            <View style={styles.iconAndDescCont}>
+              <Fontisto
+                style={{marginRight: 10}}
+                name="money-symbol"
+                size={20}
+                color={colors.gray}
+              />
+              <Text style={styles.featdataText}>3000 / day</Text>
+            </View>
+
+            <View style={styles.iconAndDescCont}>
+              <Ionicons
+                style={{marginRight: 10}}
+                name="location"
+                size={20}
+                color={colors.gray}
+              />
+              <Text style={styles.featdataText}>Nairobi, Kenya</Text>
+            </View>
           </View>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.featuredCarContainer}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('CarDetails')}
+          style={styles.featuredCarContainer}>
           <Image
             style={styles.featuredCarImg}
             source={require('../assets/images/audirs7.jpg')}
           />
           <View style={styles.featuredData}>
-            <Text style={[styles.featdataText, {color: colors.orange}]}>
-              <Ionicons name="car-sport" size={20} color={colors.gray} />
-              {'  '}
-              Audi RS 7 - (5 seater)
-            </Text>
-            <Text style={styles.featdataText}>
-              <Ionicons name="person" size={20} color={colors.gray} />
-              {'  '}
-              Hensel Johns
-            </Text>
-            <Text style={styles.featdataText}>
-              <Ionicons name="person" size={20} color={colors.gray} />
-              {'  '}0724753175
-            </Text>
-            <Text style={styles.featdataText}>
-              <Ionicons name="person" size={20} color={colors.gray} />
-              {'  '}
-              3000 / day
-            </Text>
-            <Text style={styles.featdataText}>
-              <Ionicons name="location" size={20} color={colors.gray} />
-              {'  '}
-              Nairobi, Kenya
-            </Text>
+            <View style={styles.iconAndDescCont}>
+              <Ionicons
+                style={{marginRight: 10}}
+                name="car-sport"
+                size={20}
+                color={colors.gray}
+              />
+              <Text style={[styles.featdataText, {color: colors.orange}]}>
+                Audi RS 7
+              </Text>
+            </View>
+
+            <View style={styles.iconAndDescCont}>
+              <Ionicons
+                style={{marginRight: 10}}
+                name="person"
+                size={20}
+                color={colors.gray}
+              />
+              <Text style={styles.featdataText}>Hensel Johns</Text>
+            </View>
+
+            <View style={styles.iconAndDescCont}>
+              <Entypo
+                style={{marginRight: 10}}
+                name="old-phone"
+                size={20}
+                color={colors.gray}
+              />
+              <Text style={styles.featdataText}>0724753175</Text>
+            </View>
+
+            <View style={styles.iconAndDescCont}>
+              <Fontisto
+                style={{marginRight: 10}}
+                name="money-symbol"
+                size={20}
+                color={colors.gray}
+              />
+              <Text style={styles.featdataText}>3000 / day</Text>
+            </View>
+
+            <View style={styles.iconAndDescCont}>
+              <Ionicons
+                style={{marginRight: 10}}
+                name="location"
+                size={20}
+                color={colors.gray}
+              />
+              <Text style={styles.featdataText}>Nairobi, Kenya</Text>
+            </View>
           </View>
         </TouchableOpacity>
       </ScrollView>
 
       <View style={styles.featuredAndViewAll}>
-        <Text style={styles.featTexts}>Other cars</Text>
+        <Text style={styles.featTexts}>Hot deals</Text>
 
         <TouchableOpacity>
           <Text style={styles.featTexts}>View all</Text>
@@ -128,15 +191,22 @@ export default function Home() {
       </View>
 
       <View style={styles.otherCarsContainer}>
-        <TouchableOpacity style={styles.otherCarItem}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('CarDetails')}
+          style={styles.otherCarItem}>
           <Image
             style={styles.otherCarImg}
-            source={require('../assets/images/juke.png')}
+            source={require('../assets/images/bmw.jpg')}
           />
           <View style={styles.carTextDataContainer}>
             <Text style={[styles.featdataText, {color: colors.orange}]}>
-              Noah - (5 seater)
+              BMW
             </Text>
+
+            <View style={styles.ratingContainer}>
+              <Text style={styles.ratingText}>5.8</Text>
+              <AntDesign name="star" size={10} color={colors.yellow} />
+            </View>
             <Text style={styles.featdataText}>Isaac Tingo</Text>
             <Text style={styles.featdataText}>0724753175</Text>
             <Text style={styles.featdataText}>4000 / day</Text>
@@ -144,15 +214,22 @@ export default function Home() {
           </View>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.otherCarItem}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('CarDetails')}
+          style={styles.otherCarItem}>
           <Image
             style={styles.otherCarImg}
             source={require('../assets/images/juke.png')}
           />
           <View style={styles.carTextDataContainer}>
             <Text style={[styles.featdataText, {color: colors.orange}]}>
-              Noah - (5 seater)
+              Nissan Juke
             </Text>
+
+            <View style={styles.ratingContainer}>
+              <Text style={styles.ratingText}>5.4</Text>
+              <AntDesign name="star" size={10} color={colors.yellow} />
+            </View>
             <Text style={styles.featdataText}>Isaac Tingo</Text>
             <Text style={styles.featdataText}>0724753175</Text>
             <Text style={styles.featdataText}>4000 / day</Text>
@@ -160,6 +237,143 @@ export default function Home() {
           </View>
         </TouchableOpacity>
       </View>
+
+      <View style={styles.featuredAndViewAll}>
+        <Text style={styles.featTexts}>Recently viewed</Text>
+
+        <TouchableOpacity>
+          <Text style={styles.featTexts}>View all</Text>
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.featuredCarsScrollView}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('CarDetails')}
+          style={styles.featuredCarContainer}>
+          <Image
+            style={styles.featuredCarImg}
+            source={require('../assets/images/rav4.jpg')}
+          />
+          <View style={styles.featuredData}>
+            <View style={styles.iconAndDescCont}>
+              <Ionicons
+                style={{marginRight: 10}}
+                name="car-sport"
+                size={20}
+                color={colors.gray}
+              />
+              <Text style={[styles.featdataText, {color: colors.orange}]}>
+                Toyota Rav 4
+              </Text>
+            </View>
+
+            <View style={styles.iconAndDescCont}>
+              <Ionicons
+                style={{marginRight: 10}}
+                name="person"
+                size={20}
+                color={colors.gray}
+              />
+              <Text style={styles.featdataText}>Hensel Johns</Text>
+            </View>
+
+            <View style={styles.iconAndDescCont}>
+              <Entypo
+                style={{marginRight: 10}}
+                name="old-phone"
+                size={20}
+                color={colors.gray}
+              />
+              <Text style={styles.featdataText}>0724753175</Text>
+            </View>
+
+            <View style={styles.iconAndDescCont}>
+              <Fontisto
+                style={{marginRight: 10}}
+                name="money-symbol"
+                size={20}
+                color={colors.gray}
+              />
+              <Text style={styles.featdataText}>3000 / day</Text>
+            </View>
+
+            <View style={styles.iconAndDescCont}>
+              <Ionicons
+                style={{marginRight: 10}}
+                name="location"
+                size={20}
+                color={colors.gray}
+              />
+              <Text style={styles.featdataText}>Nairobi, Kenya</Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => navigation.navigate('CarDetails')}
+          style={styles.featuredCarContainer}>
+          <Image
+            style={styles.featuredCarImg}
+            source={require('../assets/images/teslaX.jpg')}
+          />
+          <View style={styles.featuredData}>
+            <View style={styles.iconAndDescCont}>
+              <Ionicons
+                style={{marginRight: 10}}
+                name="car-sport"
+                size={20}
+                color={colors.gray}
+              />
+              <Text style={[styles.featdataText, {color: colors.orange}]}>
+                Tesla Model X
+              </Text>
+            </View>
+
+            <View style={styles.iconAndDescCont}>
+              <Ionicons
+                style={{marginRight: 10}}
+                name="person"
+                size={20}
+                color={colors.gray}
+              />
+              <Text style={styles.featdataText}>Hensel Johns</Text>
+            </View>
+
+            <View style={styles.iconAndDescCont}>
+              <Entypo
+                style={{marginRight: 10}}
+                name="old-phone"
+                size={20}
+                color={colors.gray}
+              />
+              <Text style={styles.featdataText}>0724753175</Text>
+            </View>
+
+            <View style={styles.iconAndDescCont}>
+              <Fontisto
+                style={{marginRight: 10}}
+                name="money-symbol"
+                size={20}
+                color={colors.gray}
+              />
+              <Text style={styles.featdataText}>3000 / day</Text>
+            </View>
+
+            <View style={styles.iconAndDescCont}>
+              <Ionicons
+                style={{marginRight: 10}}
+                name="location"
+                size={20}
+                color={colors.gray}
+              />
+              <Text style={styles.featdataText}>Nairobi, Kenya</Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+      </ScrollView>
     </ScrollView>
   );
 }
@@ -186,6 +400,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.gray,
     paddingLeft: 50,
+    color: 'black',
   },
   searchIcon: {
     position: 'absolute',
@@ -231,7 +446,7 @@ const styles = StyleSheet.create({
   featdataText: {
     alignItems: 'center',
     justifyContent: 'center',
-    color: 'gray',
+    color: '#595959',
     fontFamily: 'PaytoneOne-Regular',
   },
   otherCarItem: {
@@ -257,5 +472,22 @@ const styles = StyleSheet.create({
   },
   carTextDataContainer: {
     padding: 10,
+    flex: 1,
+  },
+  iconAndDescCont: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  ratingContainer: {
+    flexDirection: 'row',
+    position: 'absolute',
+    right: 10,
+    alignItems: 'center',
+    top: 15,
+  },
+  ratingText: {
+    fontWeight: '800',
+    color: colors.yellow,
+    fontSize: 10,
   },
 });

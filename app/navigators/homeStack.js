@@ -13,6 +13,7 @@ import Home from '../screens/home';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/native';
 import colors from '../components/colors';
+import CarDetails from '../screens/carDetails';
 
 const Stack = createNativeStackNavigator();
 const B = props => (
@@ -33,12 +34,12 @@ function LogoTitle() {
           color: 'white',
           fontSize: 25,
           fontFamily: 'PaytoneOne-Regular',
-          textShadowColor: '#993333',
+          textShadowColor: 'black',
           textShadowOffset: {
             height: 1,
             width: 1,
           },
-          textShadowRadius: 3,
+          textShadowRadius: 2,
         }}>
         Car Zone <B>KE</B>
       </Text>
@@ -85,6 +86,18 @@ export default function HomeStack() {
           headerTitle: props => <LogoTitle {...props} />,
           headerLeft: null,
           headerTitleAlign: 'center',
+        }}
+      />
+
+      <Stack.Screen
+        name="CarDetails"
+        component={CarDetails}
+        options={{
+          headerStyle: {
+            backgroundColor: 'transparent',
+          },
+          headerTransparent: true,
+          headerTitle: '',
         }}
       />
     </Stack.Navigator>
