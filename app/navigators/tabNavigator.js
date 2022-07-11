@@ -10,6 +10,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import HomeStack from './homeStack';
 
 import colors from '../components/colors';
+import PostCar from '../screens/postCar';
 
 const Tab = createBottomTabNavigator();
 
@@ -37,6 +38,18 @@ export default function TabNavigator() {
           headerShown: false,
           tabBarLabel: '',
           headerTitle: '',
+          tabBarIcon: ({focused, color, size}) => {
+            return <AntDesign name="home" size={30} color={color} />;
+          },
+        }}
+      />
+
+      <Tab.Screen
+        name="PostCar"
+        component={PostCar}
+        options={{
+          tabBarLabel: '',
+          headerTitle: 'Post a car',
           tabBarIcon: ({focused, color, size}) => {
             return <AntDesign name="home" size={30} color={color} />;
           },

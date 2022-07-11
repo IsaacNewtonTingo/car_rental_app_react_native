@@ -14,6 +14,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/native';
 import colors from '../components/colors';
 import CarDetails from '../screens/carDetails';
+import PublicProfile from '../screens/publicProfile';
 
 const Stack = createNativeStackNavigator();
 const B = props => (
@@ -92,6 +93,18 @@ export default function HomeStack() {
       <Stack.Screen
         name="CarDetails"
         component={CarDetails}
+        options={{
+          headerStyle: {
+            backgroundColor: 'transparent',
+          },
+          headerTransparent: true,
+          headerTitle: '',
+        }}
+      />
+
+      <Stack.Screen
+        name="PublicProfile"
+        component={PublicProfile}
         options={{
           headerStyle: {
             backgroundColor: 'transparent',

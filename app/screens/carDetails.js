@@ -16,7 +16,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 
 const {width} = Dimensions.get('window');
 
-export default function CarDetails() {
+export default function CarDetails({navigation}) {
   return (
     <ScrollView style={styles.container}>
       <ScrollView horizontal pagingEnabled={true} style={styles.carImages}>
@@ -30,7 +30,9 @@ export default function CarDetails() {
         />
       </ScrollView>
 
-      <TouchableOpacity style={styles.toProfile}>
+      <TouchableOpacity
+        onPress={() => navigation.navigate('PublicProfile')}
+        style={styles.toProfile}>
         <Avatar.Image
           size={60}
           source={{
@@ -39,9 +41,7 @@ export default function CarDetails() {
         />
 
         <View style={styles.dealerDetailsContainer}>
-          <Text style={styles.dealerDetails}>Isaac Tingo</Text>
-          <Text style={styles.dealerDetails}>0724753175</Text>
-          <Text style={styles.dealerDetails}>Nairobi, Kenya</Text>
+          <Text style={styles.carText}>Audi{'\n'}RS7</Text>
         </View>
 
         <View style={styles.ratingContainer}>
@@ -193,5 +193,10 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: '800',
     fontSize: 16,
+  },
+  carText: {
+    color: 'white',
+    fontFamily: 'PaytoneOne-Regular',
+    fontSize: 20,
   },
 });
