@@ -15,7 +15,7 @@ const Welcome = ({navigation}) => {
   return (
     <ScrollView style={styles.container}>
       <ImageBackground
-        source={require('../assets/welcomeImg.jpg')}
+        source={require('../assets/images/welcomeImg.jpg')}
         style={styles.imgBG}>
         <View style={styles.itemsCont}>
           <Text style={styles.title}>Premium cars.{'\n'}Enjoy the luxury</Text>
@@ -24,7 +24,7 @@ const Welcome = ({navigation}) => {
             Experience the thrill at affordable prices
           </Text>
           <TouchableOpacity
-            onPress={() => navigation.navigate('PickService')}
+            onPress={() => navigation.navigate('SignUp')}
             style={styles.welcomeBtn}>
             <Text style={styles.btnText}>Get started</Text>
           </TouchableOpacity>
