@@ -447,7 +447,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     color: '#595959',
-    fontFamily: 'PaytoneOne-Regular',
+    fontWeight: '700',
   },
   otherCarItem: {
     height: 140,

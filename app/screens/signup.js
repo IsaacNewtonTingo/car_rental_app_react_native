@@ -23,9 +23,17 @@ export default function SignUp() {
   const [confirmPassword, setConfirmPassword] = useState('');
 
   const signup = () => {
+    const url = 'https://full-auth-server-node-jss.herokuapp.com/user/signup';
+    // const url = 'https://f713-105-163-0-152.eu.ngrok.io/user/signup';
     axios
-      .post('', {})
-      .then(() => {})
+      .post(url, {
+        name: name,
+        email: email,
+        password: password,
+      })
+      .then(response => {
+        console.log(response.data);
+      })
       .catch(error => {
         console.log(error);
       });
@@ -97,7 +105,7 @@ export default function SignUp() {
         />
       </View>
 
-      <TouchableOpacity style={styles.signupBTN}>
+      <TouchableOpacity onPress={signup} style={styles.signupBTN}>
         <Text style={styles.signupText}>Signup</Text>
       </TouchableOpacity>
 

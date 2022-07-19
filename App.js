@@ -7,7 +7,7 @@ import AuthStack from './app/navigators/authStack';
 export default function App() {
   return (
     <NavigationContainer>
-      <AuthStack />
+      <TabNavigator />
     </NavigationContainer>
   );
 }
