@@ -10,17 +10,25 @@ import {
   Modal,
   FlatList,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import colors from '../components/colors';
 import axios from 'axios';
 import {RadioButton} from 'react-native-paper';
 
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import Entypo from 'react-native-vector-icons/Entypo';
 
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
+
+import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
+
+import ImagePicker from 'react-native-image-crop-picker';
+import storage from '@react-native-firebase/storage';
+import DropDownPicker from 'react-native-dropdown-picker';
 
 const width = Dimensions.get('window').width;
 const makeData = require('../assets/carsData/car-make.json');
@@ -41,7 +49,6 @@ export default function PostCar() {
   const [name, setName] = useState('');
   const [phoneNumber, setPhoneNUmber] = useState('');
   const [location, setLocation] = useState('');
-  const [userID, setUserID] = useState('');
 
   const [makeModalVisible, setMakeModalVisible] = useState(false);
 
@@ -49,14 +56,50 @@ export default function PostCar() {
   const [masterData, setmasterData] = useState(makeData);
   const [search, setSearch] = useState('');
 
-  // useEffect(() => {
-  //   getUserData();
-  // }, []);
+  const [transferred, setTransferred] = useState(0);
+  const [uid, setUserId] = useState('');
 
-  //  function getUserData() {
-  //   const userID =  auth().currentUser.uid;
-  //   setUserID(userID);
-  // }
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const ref = useRef();
+
+  useEffect(() => {
+    ref.current?.setAddressText(location);
+    ref.current?.getAddressText(location);
+  }, []);
+
+  useEffect(() => {
+    getUserData();
+  }, []);
+
+  function getUserData() {
+    const userID = auth().currentUser.uid;
+
+    try {
+      const subscriber = firestore()
+        .collection('Users')
+        .doc(userID)
+        .onSnapshot(onResult, onError);
+      return subscriber;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  function onResult(QuerySnapshot) {
+    const docData = QuerySnapshot.data();
+    if (docData) {
+      setName(docData.name);
+      setPhoneNUmber(docData.phoneNumber);
+    } else {
+      setName('');
+      setPhoneNUmber('');
+    }
+  }
+
+  function onError(error) {
+    console.log(error);
+  }
 
   const searchFilter = text => {
     if (text) {
@@ -121,21 +164,29 @@ export default function PostCar() {
       !rate ||
       !name ||
       !phoneNumber ||
-      !location
+      !location ||
+      !image1 ||
+      !image2 ||
+      !image3
     ) {
       Alert.alert('All fields are required');
     } else {
+      const userID = auth().currentUser.uid;
+      let imageUrl1 = await uploadImage1();
+      let imageUrl2 = await uploadImage2();
+      let imageUrl3 = await uploadImage3();
+
       await firestore()
         .collection('CarMake')
         .doc(make)
         .collection('CarModel')
         .doc(model)
         .collection('CarOwner')
-        .doc('myUserID')
+        .doc(userID)
         .set({
-          image1: image1,
-          image2: image2,
-          image3: image3,
+          image1: imageUrl1,
+          image2: imageUrl2,
+          image3: imageUrl3,
           make: make,
           model: model,
           description: description,
@@ -144,7 +195,7 @@ export default function PostCar() {
           transmission: transmission,
           fuelType: fuelType,
           rate: rate,
-          name: name,
+          label: name,
           phoneNumber: phoneNumber,
           location: location,
         })
@@ -157,8 +208,191 @@ export default function PostCar() {
     }
   }
 
+  function openLibrary1() {
+    ImagePicker.openPicker({
+      // width: 300,
+      // height: 300,
+      // cropping: true,
+      compressImageQuality: 0.6,
+      mediaType: 'photo',
+    })
+      .then(image => {
+        setImage1(image.path);
+      })
+      .catch(error => {
+        console.log(error);
+        return null;
+      });
+  }
+
+  function openLibrary2() {
+    ImagePicker.openPicker({
+      // width: 300,
+      // height: 300,
+      // cropping: true,
+      compressImageQuality: 0.6,
+      mediaType: 'photo',
+    })
+      .then(image => {
+        setImage2(image.path);
+      })
+      .catch(error => {
+        console.log(error);
+        return null;
+      });
+  }
+
+  function openLibrary3() {
+    ImagePicker.openPicker({
+      // width: 300,
+      // height: 300,
+      // cropping: true,
+      compressImageQuality: 0.6,
+      mediaType: 'photo',
+    })
+      .then(image => {
+        setImage3(image.path);
+      })
+      .catch(error => {
+        console.log(error);
+        return null;
+      });
+  }
+
+  const uploadImage1 = async () => {
+    if (image1 == null) {
+      return null;
+    }
+    const uploadUri = image1;
+    let filename = uploadUri.substring(uploadUri.lastIndexOf('/') + 1);
+
+    // Add timestamp to File Name
+    const extension = filename.split('.').pop();
+    const name = filename.split('.').slice(0, -1).join('.');
+    filename = name + Date.now() + '.' + extension;
+
+    setIsSubmitting(true);
+    setTransferred(0);
+
+    const storageRef = storage().ref(`photos/${filename}`);
+    const task = storageRef.putFile(uploadUri);
+
+    // Set transferred state
+    task.on('state_changed', taskSnapshot => {
+      console.log(
+        `${taskSnapshot.bytesTransferred} transferred out of ${taskSnapshot.totalBytes}`,
+      );
+
+      setTransferred(
+        Math.round(taskSnapshot.bytesTransferred / taskSnapshot.totalBytes) *
+          100,
+      );
+    });
+
+    try {
+      await task;
+
+      const url = await storageRef.getDownloadURL();
+
+      setIsSubmitting(false);
+      setImage1(null);
+      return url;
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+  };
+
+  const uploadImage2 = async () => {
+    if (image2 == null) {
+      return null;
+    }
+    const uploadUri = image2;
+    let filename = uploadUri.substring(uploadUri.lastIndexOf('/') + 1);
+
+    // Add timestamp to File Name
+    const extension = filename.split('.').pop();
+    const name = filename.split('.').slice(0, -1).join('.');
+    filename = name + Date.now() + '.' + extension;
+
+    setIsSubmitting(true);
+    setTransferred(0);
+
+    const storageRef = storage().ref(`photos/${filename}`);
+    const task = storageRef.putFile(uploadUri);
+
+    // Set transferred state
+    task.on('state_changed', taskSnapshot => {
+      console.log(
+        `${taskSnapshot.bytesTransferred} transferred out of ${taskSnapshot.totalBytes}`,
+      );
+
+      setTransferred(
+        Math.round(taskSnapshot.bytesTransferred / taskSnapshot.totalBytes) *
+          100,
+      );
+    });
+
+    try {
+      await task;
+
+      const url = await storageRef.getDownloadURL();
+
+      setIsSubmitting(false);
+      setImage2(null);
+      return url;
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+  };
+
+  const uploadImage3 = async () => {
+    if (image3 == null) {
+      return null;
+    }
+    const uploadUri = image3;
+    let filename = uploadUri.substring(uploadUri.lastIndexOf('/') + 1);
+
+    // Add timestamp to File Name
+    const extension = filename.split('.').pop();
+    const name = filename.split('.').slice(0, -1).join('.');
+    filename = name + Date.now() + '.' + extension;
+
+    setIsSubmitting(true);
+    setTransferred(0);
+
+    const storageRef = storage().ref(`photos/${filename}`);
+    const task = storageRef.putFile(uploadUri);
+
+    // Set transferred state
+    task.on('state_changed', taskSnapshot => {
+      console.log(
+        `${taskSnapshot.bytesTransferred} transferred out of ${taskSnapshot.totalBytes}`,
+      );
+
+      setTransferred(
+        Math.round(taskSnapshot.bytesTransferred / taskSnapshot.totalBytes) *
+          100,
+      );
+    });
+
+    try {
+      await task;
+
+      const url = await storageRef.getDownloadURL();
+
+      setIsSubmitting(false);
+      setImage3(null);
+      return url;
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+  };
+
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView keyboardShouldPersistTaps="always" style={styles.container}>
       <Text style={[styles.label, {marginBottom: 20}]}>Select images</Text>
 
       <ScrollView
@@ -168,9 +402,11 @@ export default function PostCar() {
         <ImageBackground
           style={styles.mainImage}
           source={{
-            uri: 'https://us.123rf.com/450wm/mathier/mathier1905/mathier190500002/134557216-no-thumbnail-image-placeholder-for-forums-blogs-and-websites.jpg?ver=6',
+            uri: image1
+              ? image1
+              : 'https://us.123rf.com/450wm/mathier/mathier1905/mathier190500002/134557216-no-thumbnail-image-placeholder-for-forums-blogs-and-websites.jpg?ver=6',
           }}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={openLibrary1}>
             <MaterialCommunityIcons
               name="camera-plus"
               size={30}
@@ -182,9 +418,11 @@ export default function PostCar() {
         <ImageBackground
           style={styles.mainImage}
           source={{
-            uri: 'https://us.123rf.com/450wm/mathier/mathier1905/mathier190500002/134557216-no-thumbnail-image-placeholder-for-forums-blogs-and-websites.jpg?ver=6',
+            uri: image2
+              ? image2
+              : 'https://us.123rf.com/450wm/mathier/mathier1905/mathier190500002/134557216-no-thumbnail-image-placeholder-for-forums-blogs-and-websites.jpg?ver=6',
           }}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={openLibrary2}>
             <MaterialCommunityIcons
               name="camera-plus"
               size={30}
@@ -196,9 +434,11 @@ export default function PostCar() {
         <ImageBackground
           style={styles.mainImage}
           source={{
-            uri: 'https://us.123rf.com/450wm/mathier/mathier1905/mathier190500002/134557216-no-thumbnail-image-placeholder-for-forums-blogs-and-websites.jpg?ver=6',
+            uri: image3
+              ? image3
+              : 'https://us.123rf.com/450wm/mathier/mathier1905/mathier190500002/134557216-no-thumbnail-image-placeholder-for-forums-blogs-and-websites.jpg?ver=6',
           }}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={openLibrary3}>
             <MaterialCommunityIcons
               name="camera-plus"
               size={30}
@@ -274,6 +514,17 @@ export default function PostCar() {
           />
           <Text style={styles.transText}>Diesel</Text>
         </View>
+
+        <View style={styles.radioAndText}>
+          <RadioButton
+            value="electric"
+            status={fuelType === 'electric' ? 'checked' : 'unchecked'}
+            onPress={() => {
+              setFuelType('electric');
+            }}
+          />
+          <Text style={styles.transText}>Electric</Text>
+        </View>
       </View>
 
       <Text style={styles.label}>Mileage (km)</Text>
@@ -322,6 +573,7 @@ export default function PostCar() {
         placeholder="e.g John Doe"
         value={name}
         onChangeText={setName}
+        editable={false}
       />
 
       <Text style={styles.label}>Phone number</Text>
@@ -330,15 +582,49 @@ export default function PostCar() {
         placeholder="e.g 0724753175"
         value={phoneNumber}
         onChangeText={setPhoneNUmber}
+        editable={false}
       />
 
       <Text style={styles.label}>Location</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="e.g Nairobi, Kenya"
-        value={location}
-        onChangeText={setLocation}
-      />
+
+      <View style={{marginTop: 10}}>
+        <Entypo style={styles.icons} name="location" size={20} color="black" />
+
+        <GooglePlacesAutocomplete
+          ref={ref}
+          keyboardShouldPersistTaps="always"
+          fetchDetails={true}
+          placeholder="Search your location"
+          onPress={(data, details = null) => {
+            setLocation(data.description);
+          }}
+          query={{
+            key: 'AIzaSyB7rOUlrE_lVRVv2unWyqjBiqVuQcwxd1U',
+            language: 'en',
+            components: 'country:ke',
+            types: '(cities)',
+          }}
+          styles={{
+            textInput: {
+              backgroundColor: '#ccdcff',
+              height: 50,
+              borderRadius: 5,
+              paddingVertical: 10,
+              paddingHorizontal: 40,
+              fontSize: 15,
+              borderBottomWidth: 1,
+              color: 'black',
+              width: '50%',
+            },
+            listView: {
+              flex: 1,
+            },
+            textInputContainer: {
+              flexDirection: 'row',
+            },
+          }}
+        />
+      </View>
 
       <Modal
         onRequestClose={() => setMakeModalVisible(false)}
@@ -374,9 +660,17 @@ export default function PostCar() {
         </View>
       </Modal>
 
-      <TouchableOpacity onPress={submitForm} style={styles.postCarBTN}>
-        <Text style={styles.postCarBTNText}>Post car</Text>
-      </TouchableOpacity>
+      {isSubmitting == false ? (
+        <TouchableOpacity onPress={submitForm} style={styles.postCarBTN}>
+          <Text style={styles.postCarBTNText}>Post car</Text>
+        </TouchableOpacity>
+      ) : (
+        <TouchableOpacity
+          disabled={true}
+          style={[styles.postCarBTN, {backgroundColor: '#993366'}]}>
+          <ActivityIndicator size="small" color="white" />
+        </TouchableOpacity>
+      )}
     </ScrollView>
   );
 }
@@ -482,5 +776,11 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
     margin: 5,
     borderColor: '#009688',
+  },
+  icons: {
+    position: 'absolute',
+    top: 13,
+    zIndex: 1,
+    left: 10,
   },
 });
