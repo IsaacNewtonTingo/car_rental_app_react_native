@@ -16,6 +16,7 @@ import colors from '../components/colors';
 
 import SignUp from '../screens/signup';
 import Welcome from '../screens/welcome';
+import Login from '../screens/login';
 
 const Stack = createNativeStackNavigator();
 const B = props => (
@@ -89,6 +90,20 @@ export default function AuthStack() {
       <Stack.Screen
         name="SignUp"
         component={SignUp}
+        options={{
+          headerStyle: {
+            backgroundColor: colors.green,
+          },
+          title: '',
+          headerTitle: props => <LogoTitle {...props} />,
+          headerLeft: null,
+          headerTitleAlign: 'center',
+        }}
+      />
+
+      <Stack.Screen
+        name="Login"
+        component={Login}
         options={{
           headerStyle: {
             backgroundColor: colors.green,

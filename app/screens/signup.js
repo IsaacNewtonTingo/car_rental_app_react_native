@@ -5,6 +5,8 @@ import {
   TextInput,
   ScrollView,
   TouchableOpacity,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import React, {useState} from 'react';
 
@@ -15,31 +17,86 @@ import Feather from 'react-native-vector-icons/Feather';
 
 import colors from '../components/colors';
 
-export default function SignUp() {
+import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
+
+export default function SignUp({navigation}) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  const signup = () => {
-    const url = 'https://full-auth-server-node-jss.herokuapp.com/user/signup';
-    // const url = 'https://f713-105-163-0-152.eu.ngrok.io/user/signup';
-    axios
-      .post(url, {
-        name: name,
-        email: email,
-        password: password,
-      })
-      .then(response => {
-        console.log(response.data);
-      })
-      .catch(error => {
-        console.log(error);
-      });
+  const [isPosting, setIsPosting] = useState(false);
+
+  const empty = () => {
+    setName('');
+    setEmail('');
+    setPhoneNumber('');
+    setPassword('');
+    setConfirmPassword('');
+  };
+
+  const signup = async () => {
+    if (!name || !email || !phoneNumber || !password || !confirmPassword) {
+      Alert.alert('All fields are required');
+      setIsPosting(false);
+    } else if (password != confirmPassword) {
+      Alert.alert("Passwords don't match");
+    } else if (password.length < 8) {
+      Alert.alert('Password should be at least 8 characters long');
+    } else if (name.length < 3) {
+      Alert.alert('Name is too short');
+    } else if (phoneNumber.length != 10) {
+      Alert.alert('Invalid phone number');
+    } else {
+      setIsPosting(true);
+      await auth()
+        .createUserWithEmailAndPassword(email, password)
+        .then(async userCredentials => {
+          const user = userCredentials.user;
+          await firestore()
+            .collection('Users')
+            .doc(user.uid)
+            .set({
+              name: name,
+              email: email,
+              phoneNumber: phoneNumber,
+              phrofilePic: '',
+              location: null,
+              bio: '',
+            })
+            .catch(err => {
+              console.log(err);
+              setIsPosting(false);
+            });
+        })
+        .catch(error => {
+          if (error.code === 'auth/email-already-in-use') {
+            Alert.alert('Email address already in use');
+            setIsPosting(false);
+            return null;
+          }
+
+          if (error.code === 'auth/invalid-email') {
+            Alert.alert('Invalid email adress');
+            setIsPosting(false);
+            return null;
+          }
+
+          empty();
+          console.error(error);
+          setIsPosting(false);
+        })
+        .then(() => {
+          Alert.alert('Account created successfully');
+          empty();
+          setIsPosting(false);
+        });
+    }
   };
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView keyboardShouldPersistTaps="always" style={styles.container}>
       <Text style={styles.label}>Full name</Text>
 
       <View style={styles.iconAndInputContainer}>
@@ -87,7 +144,6 @@ export default function SignUp() {
           onChangeText={text => setPassword(text)}
           placeholder="********"
           secureTextEntry={true}
-          keyboardType="email-address"
         />
       </View>
 
@@ -101,15 +157,25 @@ export default function SignUp() {
           onChangeText={text => setConfirmPassword(text)}
           placeholder="********"
           secureTextEntry={true}
-          keyboardType="email-address"
         />
       </View>
 
-      <TouchableOpacity onPress={signup} style={styles.signupBTN}>
-        <Text style={styles.signupText}>Signup</Text>
-      </TouchableOpacity>
+      {isPosting == false ? (
+        <TouchableOpacity
+          disabled={false}
+          onPress={signup}
+          style={styles.signupBTN}>
+          <Text style={styles.signupText}>Signup</Text>
+        </TouchableOpacity>
+      ) : (
+        <TouchableOpacity
+          disabled={true}
+          style={[styles.signupBTN, {backgroundColor: '#993366'}]}>
+          <ActivityIndicator size="small" color="white" />
+        </TouchableOpacity>
+      )}
 
-      <TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate('Login')}>
         <Text style={styles.optionsText}>Already have an account? Login</Text>
       </TouchableOpacity>
     </ScrollView>

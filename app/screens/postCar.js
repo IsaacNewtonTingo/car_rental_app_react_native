@@ -4,10 +4,12 @@ import {
   View,
   TextInput,
   ScrollView,
-  Image,
   Dimensions,
   TouchableOpacity,
   ImageBackground,
+  Modal,
+  FlatList,
+  Alert,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import colors from '../components/colors';
@@ -15,8 +17,13 @@ import axios from 'axios';
 import {RadioButton} from 'react-native-paper';
 
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+
+import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 
 const width = Dimensions.get('window').width;
+const makeData = require('../assets/carsData/car-make.json');
 
 export default function PostCar() {
   const [make, setMake] = useState('');
@@ -34,14 +41,60 @@ export default function PostCar() {
   const [name, setName] = useState('');
   const [phoneNumber, setPhoneNUmber] = useState('');
   const [location, setLocation] = useState('');
+  const [userID, setUserID] = useState('');
 
-  useEffect(() => {
-    // getCars();
-  }, []);
+  const [makeModalVisible, setMakeModalVisible] = useState(false);
+
+  const [filterdData, setfilterdData] = useState(makeData);
+  const [masterData, setmasterData] = useState(makeData);
+  const [search, setSearch] = useState('');
+
+  // useEffect(() => {
+  //   getUserData();
+  // }, []);
+
+  //  function getUserData() {
+  //   const userID =  auth().currentUser.uid;
+  //   setUserID(userID);
+  // }
+
+  const searchFilter = text => {
+    if (text) {
+      const newData = masterData.filter(item => {
+        const itemData = item.Make_Name
+          ? item.Make_Name.toUpperCase()
+          : ''.toUpperCase();
+        const textData = text.toUpperCase();
+        return itemData.indexOf(textData) > -1;
+      });
+      setfilterdData(newData);
+      setSearch(text);
+    } else {
+      setfilterdData(masterData);
+      setSearch(text);
+    }
+  };
+
+  function Capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
+  const ItemView = ({item}) => {
+    return (
+      <Text
+        onPress={() => {
+          setMake(Capitalize(item.Make_Name.toLowerCase()));
+          setMakeModalVisible(false);
+        }}
+        style={styles.itemStyle}>
+        {Capitalize(item.Make_Name.toLowerCase())}
+      </Text>
+    );
+  };
 
   function getCars() {
     axios
-      .get('https://api.api-ninjas.com/v1/cars?make=' + make, {
+      .get('https://api.api-ninjas.com/v1/cars?limit=29make=' + make, {
         method: 'GET',
         headers: {
           'X-Api-Key': 'WfNJxXg9ChbMQ/igS7Ro4A==R7qK1EkGNT0z3QVg',
@@ -55,8 +108,57 @@ export default function PostCar() {
         console.log(error);
       });
   }
+
+  async function submitForm() {
+    if (
+      !make ||
+      !model ||
+      !description ||
+      !seatsNumber ||
+      !mileage ||
+      !transmission ||
+      !fuelType ||
+      !rate ||
+      !name ||
+      !phoneNumber ||
+      !location
+    ) {
+      Alert.alert('All fields are required');
+    } else {
+      await firestore()
+        .collection('CarMake')
+        .doc(make)
+        .collection('CarModel')
+        .doc(model)
+        .collection('CarOwner')
+        .doc('myUserID')
+        .set({
+          image1: image1,
+          image2: image2,
+          image3: image3,
+          make: make,
+          model: model,
+          description: description,
+          seatsNumber: seatsNumber,
+          seatsNumber: seatsNumber,
+          transmission: transmission,
+          fuelType: fuelType,
+          rate: rate,
+          name: name,
+          phoneNumber: phoneNumber,
+          location: location,
+        })
+        .catch(err => {
+          console.log(err);
+        })
+        .then(() => {
+          Alert.alert('Posted successfully');
+        });
+    }
+  }
+
   return (
-    <ScrollView keyboardShouldPersistTaps="always" style={styles.container}>
+    <ScrollView style={styles.container}>
       <Text style={[styles.label, {marginBottom: 20}]}>Select images</Text>
 
       <ScrollView
@@ -105,12 +207,13 @@ export default function PostCar() {
           </TouchableOpacity>
         </ImageBackground>
       </ScrollView>
+
       <Text style={styles.label}>Make</Text>
       <TextInput
         style={styles.input}
         placeholder="e.g Toyota"
         value={make}
-        onChangeText={setMake}
+        onFocus={() => setMakeModalVisible(true)}
       />
 
       <Text style={styles.label}>Model</Text>
@@ -177,8 +280,8 @@ export default function PostCar() {
       <TextInput
         style={styles.input}
         placeholder="e.g 14000"
-        value={seatsNumber}
-        onChangeText={setSeatsNumber}
+        value={mileage}
+        onChangeText={setMileage}
         keyboardType="number-pad"
       />
 
@@ -196,9 +299,10 @@ export default function PostCar() {
           {description.length}/200
         </Text>
       </View>
+
       <TextInput
         style={styles.input}
-        placeholder="e.g RAV4"
+        placeholder="Give a detailed description"
         value={description}
         onChangeText={setDescription}
         maxLength={200}
@@ -207,7 +311,7 @@ export default function PostCar() {
       <Text style={styles.label}>Rate (Per day)</Text>
       <TextInput
         style={styles.input}
-        placeholder="e.g RAV4"
+        placeholder="e.g KSH.3000"
         value={rate}
         onChangeText={setRate}
       />
@@ -236,7 +340,41 @@ export default function PostCar() {
         onChangeText={setLocation}
       />
 
-      <TouchableOpacity style={styles.postCarBTN}>
+      <Modal
+        onRequestClose={() => setMakeModalVisible(false)}
+        animationType="slide"
+        transparent={true}
+        visible={makeModalVisible}>
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <View style={styles.searchContainer}>
+              <Ionicons
+                style={styles.searchIcon}
+                name="search"
+                size={20}
+                color="black"
+              />
+              <TextInput
+                style={[styles.input, {paddingHorizontal: 40}]}
+                placeholder="Search a car make"
+                placeholderTextColor="gray"
+                value={search}
+                underlineColorAndroid="transparent"
+                onChangeText={text => searchFilter(text)}
+              />
+            </View>
+
+            <FlatList
+              keyboardShouldPersistTaps="always"
+              data={filterdData}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={ItemView}
+            />
+          </View>
+        </View>
+      </Modal>
+
+      <TouchableOpacity onPress={submitForm} style={styles.postCarBTN}>
         <Text style={styles.postCarBTNText}>Post car</Text>
       </TouchableOpacity>
     </ScrollView>
@@ -260,6 +398,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ccdcff',
     paddingHorizontal: 20,
     marginVertical: 10,
+    color: 'black',
   },
   radioAndText: {
     flexDirection: 'row',
@@ -302,5 +441,46 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+  },
+  centeredView: {
+    flex: 1,
+    marginTop: 50,
+  },
+  modalView: {
+    backgroundColor: colors.background,
+    shadowColor: '#000',
+    width: width,
+    height: '100%',
+  },
+  searchContainer: {
+    margin: 20,
+  },
+  searchInput: {
+    height: 40,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: colors.gray,
+    paddingLeft: 50,
+    color: 'black',
+  },
+  searchIcon: {
+    position: 'absolute',
+    left: 10,
+    top: 23,
+    zIndex: 1,
+  },
+  itemStyle: {
+    padding: 15,
+    fontWeight: '800',
+    marginHorizontal: 10,
+    backgroundColor: '#ccdcff',
+    marginBottom: 10,
+  },
+  textInputStyle: {
+    height: 50,
+    borderWidth: 1,
+    paddingLeft: 20,
+    margin: 5,
+    borderColor: '#009688',
   },
 });
