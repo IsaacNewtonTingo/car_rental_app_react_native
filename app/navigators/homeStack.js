@@ -15,6 +15,7 @@ import {useNavigation} from '@react-navigation/native';
 import colors from '../components/colors';
 import CarDetails from '../screens/carDetails';
 import PublicProfile from '../screens/publicProfile';
+import SearchedCars from '../screens/searchedCars';
 
 const Stack = createNativeStackNavigator();
 const B = props => (
@@ -93,6 +94,18 @@ export default function HomeStack() {
       <Stack.Screen
         name="CarDetails"
         component={CarDetails}
+        options={{
+          headerStyle: {
+            backgroundColor: 'transparent',
+          },
+          headerTransparent: true,
+          headerTitle: '',
+        }}
+      />
+
+      <Stack.Screen
+        name="SearchedCars"
+        component={SearchedCars}
         options={{
           headerStyle: {
             backgroundColor: 'transparent',

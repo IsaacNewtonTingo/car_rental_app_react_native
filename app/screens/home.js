@@ -13,6 +13,7 @@ import React, {useEffect, useState} from 'react';
 import colors from '../components/colors';
 
 const {width} = Dimensions.get('window');
+const carsData = require('../assets/carsData/car-make.json');
 
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -32,6 +33,10 @@ export default function Home({navigation}) {
   const [noRecentlyViewed, setNoRecentlyViewed] = useState(false);
   const [viewedCarsList, setViewedCarsList] = useState([]);
 
+  const [filtered, setFiltered] = useState(carsData);
+  const [searching, setSearching] = useState(false);
+  const [searchValue, setSearchValue] = useState('');
+
   const currentUserID = auth().currentUser.uid;
   navigation.addListener('focus', () => setLoading(!loading));
 
@@ -44,6 +49,22 @@ export default function Home({navigation}) {
     getFeaturedCars();
     getRecentlyViewed();
   }, [(navigation, loading)]);
+
+  function onSearch(text) {
+    if (text) {
+      setSearching(true);
+      const temp = text.toLowerCase();
+
+      const tempList = carsData.filter(item => {
+        if (item.Make_Name.toLowerCase().match(temp))
+          return item.Make_Name.toLowerCase();
+      });
+      setFiltered(tempList);
+    } else {
+      setSearching(false);
+      setFiltered(carsData);
+    }
+  }
 
   async function getAllCars() {
     const subscriber = await firestore()
@@ -148,6 +169,10 @@ export default function Home({navigation}) {
     return () => subscriber();
   }
 
+  function Capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
   return (
     <ScrollView keyboardShouldPersistTaps="always" style={styles.container}>
       <View style={styles.introTextContainer}>
@@ -164,10 +189,47 @@ export default function Home({navigation}) {
           color={colors.gray}
         />
         <TextInput
-          placeholder="Search for a car ..."
+          placeholder="Search for a car (e.g toyota)"
           style={styles.searchInput}
           placeholderTextColor="gray"
+          onChangeText={text => {
+            onSearch(text);
+            setSearchValue();
+          }}
+          value={searchValue}
         />
+      </View>
+
+      <View style={{flex: 1, zIndex: 1000}}>
+        {searching && (
+          <FlatList
+            keyboardShouldPersistTaps="always"
+            style={{margin: 20}}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            data={filtered}
+            keyExtractor={item => item.key}
+            renderItem={({item}) => (
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.navigate('SearchedCars', {
+                    make: Capitalize(item.Make_Name.toLowerCase()),
+                  })
+                }
+                key={item.key}
+                style={{
+                  backgroundColor: 'black',
+                  padding: 10,
+                  marginRight: 10,
+                  borderRadius: 10,
+                }}>
+                <Text style={{color: 'white', fontSize: 14}}>
+                  {Capitalize(item.Make_Name.toLowerCase())}
+                </Text>
+              </TouchableOpacity>
+            )}
+          />
+        )}
       </View>
 
       <View style={styles.featuredAndViewAll}>

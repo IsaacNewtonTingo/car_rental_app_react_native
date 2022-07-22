@@ -77,9 +77,11 @@ export default function CarDetails({navigation, route}) {
 
         <View style={styles.dealerDetailsContainer}>
           <Text style={styles.carText}>
-            {route.params.make}
-            {'\n'}
-            {route.params.model}
+            {route.params.make} {route.params.model}
+          </Text>
+
+          <Text style={{color: colors.orange, fontWeight: '800'}}>
+            {route.params.owner}
           </Text>
         </View>
 
