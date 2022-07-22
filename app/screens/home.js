@@ -237,7 +237,24 @@ export default function Home({navigation}) {
         {carsList.map(item => (
           <TouchableOpacity
             key={item.key}
-            onPress={() => navigation.navigate('CarDetails')}
+            onPress={() =>
+              navigation.navigate('CarDetails', {
+                image1: item.image1,
+                image2: item.image2,
+                image3: item.image3,
+                owner: item.owner,
+                rate: item.rate,
+                rating: item.rating,
+                location: item.location,
+                model: item.model,
+                make: item.make,
+                carOwnerID: item.carOwnerID,
+                mileage: item.mileage,
+                transmission: item.transmission,
+                fuelType: item.fuelType,
+                seatsNumber: item.seatsNumber,
+              })
+            }
             style={styles.otherCarItem}>
             <Image
               style={styles.otherCarImg}

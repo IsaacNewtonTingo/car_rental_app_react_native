@@ -48,6 +48,7 @@ export default function PostCar() {
   const [image3, setImage3] = useState('');
 
   const [name, setName] = useState('');
+  const [profilePic, setProfilePic] = useState('');
   const [phoneNumber, setPhoneNUmber] = useState('');
   const [location, setLocation] = useState('');
 
@@ -92,9 +93,11 @@ export default function PostCar() {
     if (docData) {
       setName(docData.name);
       setPhoneNUmber(docData.phoneNumber);
+      setProfilePic(docData.profilePic);
     } else {
       setName('');
       setPhoneNUmber('');
+      setProfilePic('');
     }
   }
 
@@ -157,7 +160,6 @@ export default function PostCar() {
     if (
       !make ||
       !model ||
-      !description ||
       !seatsNumber ||
       !mileage ||
       !transmission ||
@@ -190,13 +192,14 @@ export default function PostCar() {
           image3: imageUrl3,
           make: make,
           model: model,
-          description: description,
-          seatsNumber: seatsNumber,
+          mileage: mileage,
           seatsNumber: seatsNumber,
           transmission: transmission,
           fuelType: fuelType,
           rate: parseInt(rate.replace(/,/g, '')),
           owner: name,
+          profilePic: profilePic,
+          carOwnerID: userID,
           phoneNumber: phoneNumber,
           location: location,
           isPromoted: false,
@@ -549,21 +552,6 @@ export default function PostCar() {
         placeholder="e.g 4"
         value={seatsNumber}
         onChangeText={setSeatsNumber}
-      />
-
-      <View style={styles.counterContainer}>
-        <Text style={styles.label}>Description</Text>
-        <Text style={{fontWeight: '800', color: 'gray', marginRight: 10}}>
-          {description.length}/200
-        </Text>
-      </View>
-
-      <TextInput
-        style={styles.input}
-        placeholder="Give a detailed description"
-        value={description}
-        onChangeText={setDescription}
-        maxLength={200}
       />
 
       <Text style={styles.label}>Rate (Per day)</Text>
