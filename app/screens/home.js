@@ -46,6 +46,7 @@ export default function Home({navigation}) {
         const cars = [];
         if (querysnapshot.size <= 0) {
           setNoData(true);
+          setLoadingData(false);
         } else {
           querysnapshot.forEach(documentSnapshot => {
             cars.push({
@@ -243,6 +244,7 @@ export default function Home({navigation}) {
                 image2: item.image2,
                 image3: item.image3,
                 owner: item.owner,
+                phoneNumber: item.phoneNumber,
                 rate: item.rate,
                 rating: item.rating,
                 location: item.location,

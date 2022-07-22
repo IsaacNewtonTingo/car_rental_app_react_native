@@ -64,7 +64,6 @@ export default function SignUp({navigation}) {
               phoneNumber: phoneNumber,
               phrofilePic: '',
               location: null,
-              bio: '',
             })
             .catch(err => {
               console.log(err);

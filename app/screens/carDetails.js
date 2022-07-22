@@ -49,7 +49,15 @@ export default function CarDetails({navigation, route}) {
       </ScrollView>
 
       <TouchableOpacity
-        onPress={() => navigation.navigate('PublicProfile')}
+        onPress={() =>
+          navigation.navigate('PublicProfile', {
+            profilePic: route.params.profilePic,
+            owner: route.params.owner,
+            carOwnerID: route.params.carOwnerID,
+            location: route.params.location,
+            phoneNumber: route.params.phoneNumber,
+          })
+        }
         style={styles.toProfile}>
         <Avatar.Image
           size={60}

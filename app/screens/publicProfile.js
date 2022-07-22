@@ -8,7 +8,7 @@ import {
   Image,
   TouchableOpacity,
 } from 'react-native';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import colors from '../components/colors';
 import {Avatar} from 'react-native-paper';
 
@@ -17,101 +17,107 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 
+import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
+
 const {width} = Dimensions.get('window');
 
-export default function PublicProfile({navigation}) {
+export default function PublicProfile({navigation, route}) {
+  const [loadingData, setLoadingData] = useState(true);
+  const [noCarsData, setNoCarsData] = useState(true);
+  const [carsList, setCarsList] = useState([]);
+
+  useEffect(() => {
+    getMyCars();
+  }, []);
+
+  async function getMyCars() {
+    const subscriber = await firestore()
+      .collectionGroup('CarOwner')
+      .where('carOwnerID', '==', route.params.carOwnerID)
+      .limit(10)
+      .get()
+      .then(querysnapshot => {
+        const cars = [];
+        if (querysnapshot.size <= 0) {
+          setNoData(true);
+          setLoadingData(false);
+        } else {
+          querysnapshot.forEach(documentSnapshot => {
+            cars.push({
+              ...documentSnapshot.data(),
+              key: documentSnapshot.data().uniqueID,
+            });
+          });
+          setLoadingData(false);
+          setCarsList(cars);
+        }
+      })
+      .catch(err => {
+        console.log(err);
+        setLoadingData(false);
+      });
+
+    return subscriber;
+  }
   return (
     <ScrollView style={styles.container}>
       <View style={styles.topContainer}>
-        <ImageBackground
-          style={styles.coverImage}
-          source={{
-            uri: 'https://images.unsplash.com/photo-1594751543129-6701ad444259?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8ZGFyayUyMHByb2ZpbGV8ZW58MHx8MHx8&w=1000&q=80',
-          }}></ImageBackground>
         <Avatar.Image
           style={styles.avatar}
           size={200}
           source={{
-            uri: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8cHJvZmVzc2lvbmFsJTIwcHJvZmlsZXxlbnwwfHwwfHw%3D&w=1000&q=80',
+            uri: route.params.profilePic
+              ? route.params.profilePic
+              : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
           }}
         />
 
         <View style={styles.nameAndBioContainer}>
-          <Text style={styles.name}>Isaac Newton Tingo</Text>
+          <Text style={styles.name}>{route.params.owner}</Text>
 
-          <Text style={styles.bio}>
-            The best car dealer.I have a collection of over 200 cars ready for
-            you. Hit my line for dope deals
+          <Text style={[styles.bio, {color: '#cccccc'}]}>
+            {route.params.phoneNumber}
           </Text>
 
-          <Text style={[styles.bio, {color: '#cccccc'}]}>0724753175</Text>
-
-          <Text style={[styles.bio, {color: '#cccccc'}]}>Nairobi, Kenya</Text>
-        </View>
-
-        <View style={styles.topBTNsContainer}>
-          <TouchableOpacity
-            style={[styles.topBTNS, {backgroundColor: colors.textBlue}]}>
-            <Text style={styles.btnText}>Follow</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.topBTNS}>
-            <Text style={styles.btnText}>Message</Text>
-          </TouchableOpacity>
+          <Text style={[styles.bio, {color: '#cccccc'}]}>
+            {route.params.location}
+          </Text>
         </View>
       </View>
 
       <View style={styles.otherCarsContainer}>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('CarDetails')}
-          style={styles.otherCarItem}>
-          <Image
-            style={styles.otherCarImg}
-            source={require('../assets/images/bmw.jpg')}
-          />
-          <View style={styles.carTextDataContainer}>
-            <Text
-              style={[
-                styles.featdataText,
-                {color: colors.orange, fontSize: 18},
-              ]}>
-              BMW
-            </Text>
+        {carsList.map(item => (
+          <TouchableOpacity
+            onPress={() => navigation.navigate('CarDetails')}
+            style={styles.otherCarItem}>
+            <Image
+              style={styles.otherCarImg}
+              source={{
+                uri: item.image1
+                  ? item.image1
+                  : 'https://us.123rf.com/450wm/mathier/mathier1905/mathier190500002/134557216-no-thumbnail-image-placeholder-for-forums-blogs-and-websites.jpg?ver=6',
+              }}
+            />
+            <View style={styles.carTextDataContainer}>
+              <Text
+                style={[
+                  styles.featdataText,
+                  {color: colors.orange, fontSize: 18},
+                ]}>
+                {item.make} {item.model}
+              </Text>
 
-            <View style={styles.ratingContainer}>
-              <Text style={styles.ratingText}>5.8</Text>
-              <AntDesign name="star" size={10} color={colors.yellow} />
+              <View style={styles.ratingContainer}>
+                <Text style={styles.ratingText}>{item.rating}</Text>
+                <AntDesign name="star" size={10} color={colors.yellow} />
+              </View>
+
+              <Text style={styles.featdataText}>{item.rate} / day</Text>
+              <Text style={styles.featdataText}>{item.location}</Text>
             </View>
-
-            <Text style={styles.featdataText}>4000 / day</Text>
-            <Text style={styles.featdataText}>Nairobi, Kenya</Text>
-          </View>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={() => navigation.navigate('CarDetails')}
-          style={styles.otherCarItem}>
-          <Image
-            style={styles.otherCarImg}
-            source={require('../assets/images/juke.png')}
-          />
-          <View style={styles.carTextDataContainer}>
-            <Text
-              style={[
-                styles.featdataText,
-                {color: colors.orange, fontSize: 18},
-              ]}>
-              Nissan Juke
-            </Text>
-
-            <View style={styles.ratingContainer}>
-              <Text style={styles.ratingText}>5.4</Text>
-              <AntDesign name="star" size={10} color={colors.yellow} />
-            </View>
-            <Text style={styles.featdataText}>4000 / day</Text>
-            <Text style={styles.featdataText}>Nairobi, Kenya</Text>
-          </View>
-        </TouchableOpacity>
+          </TouchableOpacity>
+        ))}
       </View>
     </ScrollView>
   );
@@ -130,7 +136,7 @@ const styles = StyleSheet.create({
   topContainer: {
     flex: 1,
     backgroundColor: '#1a1a1a',
-    height: 650,
+    height: 500,
     alignItems: 'center',
   },
   coverImage: {
