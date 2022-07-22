@@ -25,8 +25,15 @@ import firestore from '@react-native-firebase/firestore';
 export default function Home({navigation}) {
   const [noData, setNoData] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   const [carsList, setCarsList] = useState([]);
+  const [promotedCarsList, setPromotedCarsList] = useState([]);
+  const [noRecentlyViewed, setNoRecentlyViewed] = useState(false);
+  const [viewedCarsList, setViewedCarsList] = useState([]);
+
+  const currentUserID = auth().currentUser.uid;
+  navigation.addListener('focus', () => setLoading(!loading));
 
   const B = props => (
     <Text style={{color: colors.orange}}>{props.children}</Text>
@@ -35,7 +42,8 @@ export default function Home({navigation}) {
   useEffect(() => {
     getAllCars();
     getFeaturedCars();
-  }, []);
+    getRecentlyViewed();
+  }, [(navigation, loading)]);
 
   async function getAllCars() {
     const subscriber = await firestore()
@@ -65,7 +73,80 @@ export default function Home({navigation}) {
 
     return subscriber;
   }
-  function getFeaturedCars() {}
+
+  async function getFeaturedCars() {
+    const subscriber = await firestore()
+      .collectionGroup('CarOwner')
+      .where('isPromoted', '==', true)
+      .limit(10)
+      .get()
+      .then(querysnapshot => {
+        const cars = [];
+        if (querysnapshot.size <= 0) {
+          setNoData(true);
+          setLoadingData(false);
+        } else {
+          querysnapshot.forEach(documentSnapshot => {
+            cars.push({
+              ...documentSnapshot.data(),
+              key: documentSnapshot.data().uniqueID,
+            });
+          });
+          setLoadingData(false);
+          setPromotedCarsList(cars);
+        }
+      })
+      .catch(err => {
+        console.log(err);
+        setLoadingData(false);
+      });
+
+    return subscriber;
+  }
+
+  async function addToCarsViewedBy({make, model, carOwnerID}) {
+    await firestore()
+      .collection('CarMake')
+      .doc(make)
+      .collection('CarModel')
+      .doc(model)
+      .collection('CarOwner')
+      .doc(carOwnerID)
+      .update({
+        carViewedBy: firestore.FieldValue.arrayUnion(carOwnerID),
+      })
+      .catch(err => console.log(err));
+  }
+
+  async function getRecentlyViewed() {
+    const subscriber = firestore()
+      .collectionGroup('CarOwner')
+      .where('carViewedBy', 'array-contains', currentUserID)
+      .limit(10)
+      .get()
+      .then(querySnapshot => {
+        const cars = [];
+
+        if (querySnapshot.size <= 0) {
+          setNoRecentlyViewed(true);
+          setLoadingData(false);
+        } else {
+          setNoRecentlyViewed(false);
+          querySnapshot.forEach(documentSnapshot => {
+            cars.push({
+              ...documentSnapshot.data(),
+              key: documentSnapshot.data().uniqueID,
+            });
+            setViewedCarsList(cars);
+            setLoadingData(false);
+          });
+        }
+      })
+      .catch(err => {
+        console.log(err);
+      });
+    return () => subscriber();
+  }
 
   return (
     <ScrollView keyboardShouldPersistTaps="always" style={styles.container}>
@@ -97,148 +178,20 @@ export default function Home({navigation}) {
         </TouchableOpacity>
       </View>
 
-      <ScrollView
+      <FlatList
         horizontal
         showsHorizontalScrollIndicator={false}
-        style={styles.featuredCarsScrollView}>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('CarDetails')}
-          style={styles.featuredCarContainer}>
-          <Image
-            style={styles.featuredCarImg}
-            source={require('../assets/images/audirs7.jpg')}
-          />
-          <View style={styles.featuredData}>
-            <View style={styles.iconAndDescCont}>
-              <Ionicons
-                style={{marginRight: 10}}
-                name="car-sport"
-                size={20}
-                color={colors.gray}
-              />
-              <Text style={[styles.featdataText, {color: colors.orange}]}>
-                Audi RS 7
-              </Text>
-            </View>
-
-            <View style={styles.iconAndDescCont}>
-              <Ionicons
-                style={{marginRight: 10}}
-                name="person"
-                size={20}
-                color={colors.gray}
-              />
-              <Text style={styles.featdataText}>Hensel Johns</Text>
-            </View>
-
-            <View style={styles.iconAndDescCont}>
-              <Entypo
-                style={{marginRight: 10}}
-                name="old-phone"
-                size={20}
-                color={colors.gray}
-              />
-              <Text style={styles.featdataText}>0724753175</Text>
-            </View>
-
-            <View style={styles.iconAndDescCont}>
-              <Fontisto
-                style={{marginRight: 10}}
-                name="money-symbol"
-                size={20}
-                color={colors.gray}
-              />
-              <Text style={styles.featdataText}>3000 / day</Text>
-            </View>
-
-            <View style={styles.iconAndDescCont}>
-              <Ionicons
-                style={{marginRight: 10}}
-                name="location"
-                size={20}
-                color={colors.gray}
-              />
-              <Text style={styles.featdataText}>Nairobi, Kenya</Text>
-            </View>
-          </View>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={() => navigation.navigate('CarDetails')}
-          style={styles.featuredCarContainer}>
-          <Image
-            style={styles.featuredCarImg}
-            source={require('../assets/images/audirs7.jpg')}
-          />
-          <View style={styles.featuredData}>
-            <View style={styles.iconAndDescCont}>
-              <Ionicons
-                style={{marginRight: 10}}
-                name="car-sport"
-                size={20}
-                color={colors.gray}
-              />
-              <Text style={[styles.featdataText, {color: colors.orange}]}>
-                Audi RS 7
-              </Text>
-            </View>
-
-            <View style={styles.iconAndDescCont}>
-              <Ionicons
-                style={{marginRight: 10}}
-                name="person"
-                size={20}
-                color={colors.gray}
-              />
-              <Text style={styles.featdataText}>Hensel Johns</Text>
-            </View>
-
-            <View style={styles.iconAndDescCont}>
-              <Entypo
-                style={{marginRight: 10}}
-                name="old-phone"
-                size={20}
-                color={colors.gray}
-              />
-              <Text style={styles.featdataText}>0724753175</Text>
-            </View>
-
-            <View style={styles.iconAndDescCont}>
-              <Fontisto
-                style={{marginRight: 10}}
-                name="money-symbol"
-                size={20}
-                color={colors.gray}
-              />
-              <Text style={styles.featdataText}>3000 / day</Text>
-            </View>
-
-            <View style={styles.iconAndDescCont}>
-              <Ionicons
-                style={{marginRight: 10}}
-                name="location"
-                size={20}
-                color={colors.gray}
-              />
-              <Text style={styles.featdataText}>Nairobi, Kenya</Text>
-            </View>
-          </View>
-        </TouchableOpacity>
-      </ScrollView>
-
-      <View style={styles.featuredAndViewAll}>
-        <Text style={styles.featTexts}>Hot deals</Text>
-
-        <TouchableOpacity>
-          <Text style={styles.featTexts}>View all</Text>
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.otherCarsContainer}>
-        {carsList.map(item => (
+        style={styles.featuredCarsScrollView}
+        data={promotedCarsList}
+        renderItem={({item}) => (
           <TouchableOpacity
-            key={item.key}
-            onPress={() =>
+            key={item.uniqueID}
+            onPress={() => {
+              addToCarsViewedBy({
+                make: item.make,
+                model: item.model,
+                carOwnerID: item.carOwnerID,
+              });
               navigation.navigate('CarDetails', {
                 image1: item.image1,
                 image2: item.image2,
@@ -255,8 +208,110 @@ export default function Home({navigation}) {
                 transmission: item.transmission,
                 fuelType: item.fuelType,
                 seatsNumber: item.seatsNumber,
-              })
-            }
+              });
+            }}
+            style={styles.featuredCarContainer}>
+            <Image
+              style={styles.featuredCarImg}
+              source={{
+                uri: item.image1
+                  ? item.image1
+                  : 'https://us.123rf.com/450wm/mathier/mathier1905/mathier190500002/134557216-no-thumbnail-image-placeholder-for-forums-blogs-and-websites.jpg?ver=6',
+              }}
+            />
+            <View style={styles.featuredData}>
+              <View style={styles.iconAndDescCont}>
+                <Ionicons
+                  style={{marginRight: 10}}
+                  name="car-sport"
+                  size={20}
+                  color={colors.gray}
+                />
+                <Text style={[styles.featdataText, {color: colors.orange}]}>
+                  {item.make} {item.model}
+                </Text>
+              </View>
+
+              <View style={styles.iconAndDescCont}>
+                <Ionicons
+                  style={{marginRight: 10}}
+                  name="person"
+                  size={20}
+                  color={colors.gray}
+                />
+                <Text style={styles.featdataText}>{item.owner}</Text>
+              </View>
+
+              <View style={styles.iconAndDescCont}>
+                <Entypo
+                  style={{marginRight: 10}}
+                  name="old-phone"
+                  size={20}
+                  color={colors.gray}
+                />
+                <Text style={styles.featdataText}>{item.phoneNumber}</Text>
+              </View>
+
+              <View style={styles.iconAndDescCont}>
+                <Fontisto
+                  style={{marginRight: 10}}
+                  name="money-symbol"
+                  size={20}
+                  color={colors.gray}
+                />
+                <Text style={styles.featdataText}>{item.rate} / day</Text>
+              </View>
+
+              <View style={styles.iconAndDescCont}>
+                <Ionicons
+                  style={{marginRight: 10}}
+                  name="location"
+                  size={20}
+                  color={colors.gray}
+                />
+                <Text style={styles.featdataText}>{item.location}</Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+        )}
+      />
+
+      <View style={styles.featuredAndViewAll}>
+        <Text style={styles.featTexts}>Hot deals</Text>
+
+        <TouchableOpacity>
+          <Text style={styles.featTexts}>View all</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.otherCarsContainer}>
+        {carsList.map(item => (
+          <TouchableOpacity
+            key={item.key}
+            onPress={() => {
+              addToCarsViewedBy({
+                make: item.make,
+                model: item.model,
+                carOwnerID: item.carOwnerID,
+              });
+              navigation.navigate('CarDetails', {
+                image1: item.image1,
+                image2: item.image2,
+                image3: item.image3,
+                owner: item.owner,
+                phoneNumber: item.phoneNumber,
+                rate: item.rate,
+                rating: item.rating,
+                location: item.location,
+                model: item.model,
+                make: item.make,
+                carOwnerID: item.carOwnerID,
+                mileage: item.mileage,
+                transmission: item.transmission,
+                fuelType: item.fuelType,
+                seatsNumber: item.seatsNumber,
+              });
+            }}
             style={styles.otherCarItem}>
             <Image
               style={styles.otherCarImg}
@@ -292,134 +347,98 @@ export default function Home({navigation}) {
         </TouchableOpacity>
       </View>
 
-      <ScrollView
+      <FlatList
         horizontal
         showsHorizontalScrollIndicator={false}
-        style={styles.featuredCarsScrollView}>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('CarDetails')}
-          style={styles.featuredCarContainer}>
-          <Image
-            style={styles.featuredCarImg}
-            source={require('../assets/images/rav4.jpg')}
-          />
-          <View style={styles.featuredData}>
-            <View style={styles.iconAndDescCont}>
-              <Ionicons
-                style={{marginRight: 10}}
-                name="car-sport"
-                size={20}
-                color={colors.gray}
-              />
-              <Text style={[styles.featdataText, {color: colors.orange}]}>
-                Toyota Rav 4
-              </Text>
-            </View>
+        style={styles.featuredCarsScrollView}
+        data={viewedCarsList}
+        renderItem={({item}) => (
+          <TouchableOpacity
+            key={item.uniqueID}
+            onPress={() =>
+              navigation.navigate('CarDetails', {
+                image1: item.image1,
+                image2: item.image2,
+                image3: item.image3,
+                owner: item.owner,
+                phoneNumber: item.phoneNumber,
+                rate: item.rate,
+                rating: item.rating,
+                location: item.location,
+                model: item.model,
+                make: item.make,
+                carOwnerID: item.carOwnerID,
+                mileage: item.mileage,
+                transmission: item.transmission,
+                fuelType: item.fuelType,
+                seatsNumber: item.seatsNumber,
+              })
+            }
+            style={styles.featuredCarContainer}>
+            <Image
+              style={styles.featuredCarImg}
+              source={{
+                uri: item.image1
+                  ? item.image1
+                  : 'https://us.123rf.com/450wm/mathier/mathier1905/mathier190500002/134557216-no-thumbnail-image-placeholder-for-forums-blogs-and-websites.jpg?ver=6',
+              }}
+            />
+            <View style={styles.featuredData}>
+              <View style={styles.iconAndDescCont}>
+                <Ionicons
+                  style={{marginRight: 10}}
+                  name="car-sport"
+                  size={20}
+                  color={colors.gray}
+                />
+                <Text style={[styles.featdataText, {color: colors.orange}]}>
+                  {item.make} {item.model}
+                </Text>
+              </View>
 
-            <View style={styles.iconAndDescCont}>
-              <Ionicons
-                style={{marginRight: 10}}
-                name="person"
-                size={20}
-                color={colors.gray}
-              />
-              <Text style={styles.featdataText}>Hensel Johns</Text>
-            </View>
+              <View style={styles.iconAndDescCont}>
+                <Ionicons
+                  style={{marginRight: 10}}
+                  name="person"
+                  size={20}
+                  color={colors.gray}
+                />
+                <Text style={styles.featdataText}>{item.owner}</Text>
+              </View>
 
-            <View style={styles.iconAndDescCont}>
-              <Entypo
-                style={{marginRight: 10}}
-                name="old-phone"
-                size={20}
-                color={colors.gray}
-              />
-              <Text style={styles.featdataText}>0724753175</Text>
-            </View>
+              <View style={styles.iconAndDescCont}>
+                <Entypo
+                  style={{marginRight: 10}}
+                  name="old-phone"
+                  size={20}
+                  color={colors.gray}
+                />
+                <Text style={styles.featdataText}>{item.phoneNumber}</Text>
+              </View>
 
-            <View style={styles.iconAndDescCont}>
-              <Fontisto
-                style={{marginRight: 10}}
-                name="money-symbol"
-                size={20}
-                color={colors.gray}
-              />
-              <Text style={styles.featdataText}>3000 / day</Text>
-            </View>
+              <View style={styles.iconAndDescCont}>
+                <Fontisto
+                  style={{marginRight: 10}}
+                  name="money-symbol"
+                  size={20}
+                  color={colors.gray}
+                />
+                <Text style={styles.featdataText}>{item.rate} / day</Text>
+              </View>
 
-            <View style={styles.iconAndDescCont}>
-              <Ionicons
-                style={{marginRight: 10}}
-                name="location"
-                size={20}
-                color={colors.gray}
-              />
-              <Text style={styles.featdataText}>Nairobi, Kenya</Text>
+              <View style={styles.iconAndDescCont}>
+                <Ionicons
+                  style={{marginRight: 10}}
+                  name="location"
+                  size={20}
+                  color={colors.gray}
+                />
+                <Text style={styles.featdataText}>{item.location}</Text>
+              </View>
             </View>
-          </View>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={() => navigation.navigate('CarDetails')}
-          style={styles.featuredCarContainer}>
-          <Image
-            style={styles.featuredCarImg}
-            source={require('../assets/images/teslaX.jpg')}
-          />
-          <View style={styles.featuredData}>
-            <View style={styles.iconAndDescCont}>
-              <Ionicons
-                style={{marginRight: 10}}
-                name="car-sport"
-                size={20}
-                color={colors.gray}
-              />
-              <Text style={[styles.featdataText, {color: colors.orange}]}>
-                Tesla Model X
-              </Text>
-            </View>
-
-            <View style={styles.iconAndDescCont}>
-              <Ionicons
-                style={{marginRight: 10}}
-                name="person"
-                size={20}
-                color={colors.gray}
-              />
-              <Text style={styles.featdataText}>Hensel Johns</Text>
-            </View>
-
-            <View style={styles.iconAndDescCont}>
-              <Entypo
-                style={{marginRight: 10}}
-                name="old-phone"
-                size={20}
-                color={colors.gray}
-              />
-              <Text style={styles.featdataText}>0724753175</Text>
-            </View>
-
-            <View style={styles.iconAndDescCont}>
-              <Fontisto
-                style={{marginRight: 10}}
-                name="money-symbol"
-                size={20}
-                color={colors.gray}
-              />
-              <Text style={styles.featdataText}>3000 / day</Text>
-            </View>
-
-            <View style={styles.iconAndDescCont}>
-              <Ionicons
-                style={{marginRight: 10}}
-                name="location"
-                size={20}
-                color={colors.gray}
-              />
-              <Text style={styles.featdataText}>Nairobi, Kenya</Text>
-            </View>
-          </View>
-        </TouchableOpacity>
-      </ScrollView>
+          </TouchableOpacity>
+        )}
+      />
     </ScrollView>
   );
 }

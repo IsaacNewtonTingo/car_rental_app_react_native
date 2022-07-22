@@ -6,17 +6,24 @@ import {
   Image,
   TouchableOpacity,
   Dimensions,
+  Modal,
+  Linking,
 } from 'react-native';
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import colors from '../components/colors';
 import {Avatar} from 'react-native-paper';
+
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const {width} = Dimensions.get('window');
 
 export default function CarDetails({navigation, route}) {
+  const [modalVisible, setModalVisible] = useState(false);
+
   useEffect(() => {}, []);
   return (
     <ScrollView style={styles.container}>
@@ -121,7 +128,56 @@ export default function CarDetails({navigation, route}) {
         </View>
       </View>
 
-      <TouchableOpacity style={styles.btnBook}>
+      <Modal
+        onRequestClose={() => setModalVisible(false)}
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}>
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <TouchableOpacity
+              onPress={() => Linking.openURL(`tel:${route.params.phoneNumber}`)}
+              style={{
+                width: '90%',
+                height: 50,
+                backgroundColor: colors.textBlue,
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 10,
+                flexDirection: 'row',
+              }}>
+              <Feather name="phone-call" size={20} color={colors.orange} />
+              <Text style={[styles.btnText, {marginLeft: 10}]}>Call</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => Linking.openURL(`sms:${route.params.phoneNumber}`)}
+              style={{
+                width: '90%',
+                height: 50,
+                backgroundColor: colors.purple,
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 10,
+                flexDirection: 'row',
+                marginTop: 20,
+              }}>
+              <MaterialIcons name="sms" size={20} color={colors.orange} />
+              <Text style={[styles.btnText, {marginLeft: 10}]}>SMS</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => setModalVisible(false)}
+              style={{marginTop: 20}}>
+              <Text style={{fontWeight: '800', color: 'black'}}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      <TouchableOpacity
+        onPress={() => setModalVisible(true)}
+        style={styles.btnBook}>
         <Text style={styles.btnText}>Contact dealer</Text>
       </TouchableOpacity>
     </ScrollView>
@@ -232,5 +288,28 @@ const styles = StyleSheet.create({
     color: 'white',
     fontFamily: 'PaytoneOne-Regular',
     fontSize: 20,
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.9)',
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+    width: 300,
+    height: 300,
+    justifyContent: 'center',
   },
 });

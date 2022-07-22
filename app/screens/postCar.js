@@ -207,8 +207,9 @@ export default function PostCar() {
           rating: 0,
           uniqueID: uuid.v4(),
           savedBy: [],
-          jobViewedBy: [],
+          carViewedBy: [],
         })
+
         .catch(err => {
           console.log(err);
         })
