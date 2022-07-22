@@ -7,8 +7,9 @@ import {
   TouchableOpacity,
   View,
   Dimensions,
+  FlatList,
 } from 'react-native';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import colors from '../components/colors';
 
 const {width} = Dimensions.get('window');
@@ -18,10 +19,52 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 
+import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
+
 export default function Home({navigation}) {
+  const [noData, setNoData] = useState(false);
+  const [loadingData, setLoadingData] = useState(true);
+
+  const [carsList, setCarsList] = useState([]);
+
   const B = props => (
     <Text style={{color: colors.orange}}>{props.children}</Text>
   );
+
+  useEffect(() => {
+    getAllCars();
+    getFeaturedCars();
+  }, []);
+
+  async function getAllCars() {
+    const subscriber = await firestore()
+      .collectionGroup('CarOwner')
+      .limit(10)
+      .get()
+      .then(querysnapshot => {
+        const cars = [];
+        if (querysnapshot.size <= 0) {
+          setNoData(true);
+        } else {
+          querysnapshot.forEach(documentSnapshot => {
+            cars.push({
+              ...documentSnapshot.data(),
+              key: documentSnapshot.data().uniqueID,
+            });
+          });
+          setLoadingData(false);
+          setCarsList(cars);
+        }
+      })
+      .catch(err => {
+        console.log(err);
+        setLoadingData(false);
+      });
+
+    return subscriber;
+  }
+  function getFeaturedCars() {}
 
   return (
     <ScrollView keyboardShouldPersistTaps="always" style={styles.container}>
@@ -191,51 +234,35 @@ export default function Home({navigation}) {
       </View>
 
       <View style={styles.otherCarsContainer}>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('CarDetails')}
-          style={styles.otherCarItem}>
-          <Image
-            style={styles.otherCarImg}
-            source={require('../assets/images/bmw.jpg')}
-          />
-          <View style={styles.carTextDataContainer}>
-            <Text style={[styles.featdataText, {color: colors.orange}]}>
-              BMW
-            </Text>
+        {carsList.map(item => (
+          <TouchableOpacity
+            key={item.key}
+            onPress={() => navigation.navigate('CarDetails')}
+            style={styles.otherCarItem}>
+            <Image
+              style={styles.otherCarImg}
+              source={{
+                uri: item.image1
+                  ? item.image1
+                  : 'https://us.123rf.com/450wm/mathier/mathier1905/mathier190500002/134557216-no-thumbnail-image-placeholder-for-forums-blogs-and-websites.jpg?ver=6',
+              }}
+            />
+            <View style={styles.carTextDataContainer}>
+              <Text style={[styles.featdataText, {color: colors.orange}]}>
+                {item.make} {item.model}
+              </Text>
 
-            <View style={styles.ratingContainer}>
-              <Text style={styles.ratingText}>5.8</Text>
-              <AntDesign name="star" size={10} color={colors.yellow} />
+              <View style={styles.ratingContainer}>
+                <Text style={styles.ratingText}>{item.rating}</Text>
+                <AntDesign name="star" size={10} color={colors.yellow} />
+              </View>
+              <Text style={styles.featdataText}>{item.owner}</Text>
+              <Text style={styles.featdataText}>{item.phoneNumber}</Text>
+              <Text style={styles.featdataText}>{item.rate} / day</Text>
+              <Text style={styles.featdataText}>{item.location}</Text>
             </View>
-            <Text style={styles.featdataText}>Isaac Tingo</Text>
-            <Text style={styles.featdataText}>0724753175</Text>
-            <Text style={styles.featdataText}>4000 / day</Text>
-            <Text style={styles.featdataText}>Nairobi, Kenya</Text>
-          </View>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={() => navigation.navigate('CarDetails')}
-          style={styles.otherCarItem}>
-          <Image
-            style={styles.otherCarImg}
-            source={require('../assets/images/juke.png')}
-          />
-          <View style={styles.carTextDataContainer}>
-            <Text style={[styles.featdataText, {color: colors.orange}]}>
-              Nissan Juke
-            </Text>
-
-            <View style={styles.ratingContainer}>
-              <Text style={styles.ratingText}>5.4</Text>
-              <AntDesign name="star" size={10} color={colors.yellow} />
-            </View>
-            <Text style={styles.featdataText}>Isaac Tingo</Text>
-            <Text style={styles.featdataText}>0724753175</Text>
-            <Text style={styles.featdataText}>4000 / day</Text>
-            <Text style={styles.featdataText}>Nairobi, Kenya</Text>
-          </View>
-        </TouchableOpacity>
+          </TouchableOpacity>
+        ))}
       </View>
 
       <View style={styles.featuredAndViewAll}>

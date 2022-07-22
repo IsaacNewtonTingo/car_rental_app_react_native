@@ -25,6 +25,7 @@ import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
+import uuid from 'react-native-uuid';
 
 import ImagePicker from 'react-native-image-crop-picker';
 import storage from '@react-native-firebase/storage';
@@ -194,10 +195,16 @@ export default function PostCar() {
           seatsNumber: seatsNumber,
           transmission: transmission,
           fuelType: fuelType,
-          rate: rate,
-          label: name,
+          rate: parseInt(rate.replace(/,/g, '')),
+          owner: name,
           phoneNumber: phoneNumber,
           location: location,
+          isPromoted: false,
+          datePromoted: '',
+          rating: 0,
+          uniqueID: uuid.v4(),
+          savedBy: [],
+          jobViewedBy: [],
         })
         .catch(err => {
           console.log(err);
