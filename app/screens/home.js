@@ -235,7 +235,7 @@ export default function Home({navigation}) {
       <View style={styles.featuredAndViewAll}>
         <Text style={styles.featTexts}>Featured cars</Text>
 
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('AllFeatured')}>
           <Text style={styles.featTexts}>View all</Text>
         </TouchableOpacity>
       </View>

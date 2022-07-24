@@ -139,23 +139,6 @@ export default function PostCar() {
     );
   };
 
-  function getCars() {
-    axios
-      .get('https://api.api-ninjas.com/v1/cars?limit=29make=' + make, {
-        method: 'GET',
-        headers: {
-          'X-Api-Key': 'WfNJxXg9ChbMQ/igS7Ro4A==R7qK1EkGNT0z3QVg',
-          'content-type': 'application/json',
-        },
-      })
-      .then(result => {
-        console.log(result.data);
-      })
-      .catch(error => {
-        console.log(error);
-      });
-  }
-
   async function submitForm() {
     if (
       !make ||
@@ -202,7 +185,7 @@ export default function PostCar() {
           carOwnerID: userID,
           phoneNumber: phoneNumber,
           location: location,
-          isPromoted: false,
+          isPromoted: true,
           datePromoted: '',
           rating: 0,
           uniqueID: uuid.v4(),

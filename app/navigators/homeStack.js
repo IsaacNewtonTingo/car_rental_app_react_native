@@ -16,6 +16,9 @@ import colors from '../components/colors';
 import CarDetails from '../screens/carDetails';
 import PublicProfile from '../screens/publicProfile';
 import SearchedCars from '../screens/searchedCars';
+import AllRecentlyViewed from '../screens/allRecentlyViewed';
+import AllFeatured from '../screens/allFeatured';
+import AllHotDeals from '../screens/allHotDeals';
 
 const Stack = createNativeStackNavigator();
 const B = props => (
@@ -123,6 +126,36 @@ export default function HomeStack() {
             backgroundColor: 'transparent',
           },
           headerTransparent: true,
+          headerTitle: '',
+        }}
+      />
+
+      <Stack.Screen
+        name="AllRecentlyViewed"
+        component={AllRecentlyViewed}
+        options={{
+          headerStyle: {
+            backgroundColor: 'transparent',
+          },
+          headerTitle: '',
+        }}
+      />
+
+      <Stack.Screen
+        name="AllFeatured"
+        component={AllFeatured}
+        options={{
+          headerTitle: 'Featured cars',
+        }}
+      />
+
+      <Stack.Screen
+        name="AllHotDeals"
+        component={AllHotDeals}
+        options={{
+          headerStyle: {
+            backgroundColor: 'transparent',
+          },
           headerTitle: '',
         }}
       />
