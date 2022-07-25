@@ -341,7 +341,7 @@ export default function Home({navigation}) {
       <View style={styles.featuredAndViewAll}>
         <Text style={styles.featTexts}>Hot deals</Text>
 
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('AllHotDeals')}>
           <Text style={styles.featTexts}>View all</Text>
         </TouchableOpacity>
       </View>
@@ -404,7 +404,7 @@ export default function Home({navigation}) {
       <View style={styles.featuredAndViewAll}>
         <Text style={styles.featTexts}>Recently viewed</Text>
 
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('AllHotDeals')}>
           <Text style={styles.featTexts}>View all</Text>
         </TouchableOpacity>
       </View>

@@ -134,9 +134,6 @@ export default function HomeStack() {
         name="AllRecentlyViewed"
         component={AllRecentlyViewed}
         options={{
-          headerStyle: {
-            backgroundColor: 'transparent',
-          },
           headerTitle: '',
         }}
       />
@@ -153,9 +150,6 @@ export default function HomeStack() {
         name="AllHotDeals"
         component={AllHotDeals}
         options={{
-          headerStyle: {
-            backgroundColor: 'transparent',
-          },
           headerTitle: '',
         }}
       />

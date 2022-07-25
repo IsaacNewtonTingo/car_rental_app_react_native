@@ -48,7 +48,6 @@ export default function PostCar() {
   const [image3, setImage3] = useState('');
 
   const [name, setName] = useState('');
-  const [profilePic, setProfilePic] = useState('');
   const [phoneNumber, setPhoneNUmber] = useState('');
   const [location, setLocation] = useState('');
 
@@ -93,11 +92,9 @@ export default function PostCar() {
     if (docData) {
       setName(docData.name);
       setPhoneNUmber(docData.phoneNumber);
-      setProfilePic(docData.profilePic);
     } else {
       setName('');
       setPhoneNUmber('');
-      setProfilePic('');
     }
   }
 
@@ -150,10 +147,11 @@ export default function PostCar() {
       !rate ||
       !name ||
       !phoneNumber ||
-      !location ||
-      !image1 ||
-      !image2 ||
-      !image3
+      !location
+      // ||
+      // !image1 ||
+      // !image2 ||
+      // !image3
     ) {
       Alert.alert('All fields are required');
     } else {
@@ -181,7 +179,6 @@ export default function PostCar() {
           fuelType: fuelType,
           rate: parseInt(rate.replace(/,/g, '')),
           owner: name,
-          profilePic: profilePic,
           carOwnerID: userID,
           phoneNumber: phoneNumber,
           location: location,
@@ -528,6 +525,7 @@ export default function PostCar() {
         value={mileage}
         onChangeText={setMileage}
         keyboardType="number-pad"
+        maxLength={5}
       />
 
       <Text style={styles.label}>Number of seats</Text>
@@ -536,6 +534,7 @@ export default function PostCar() {
         placeholder="e.g 4"
         value={seatsNumber}
         onChangeText={setSeatsNumber}
+        maxLength={2}
       />
 
       <Text style={styles.label}>Rate (Per day)</Text>
@@ -544,6 +543,7 @@ export default function PostCar() {
         placeholder="e.g KSH.3000"
         value={rate}
         onChangeText={setRate}
+        maxLength={5}
       />
 
       <Text style={styles.label}>Name</Text>

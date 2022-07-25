@@ -5,17 +5,30 @@ import {
   RefreshControl,
   ActivityIndicator,
   TouchableOpacity,
+  Dimensions,
+  FlatList,
+  Image,
 } from 'react-native';
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import colors from '../components/colors';
+const width = Dimensions.get('window').width;
 
-export default function AllFeatured() {
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import Entypo from 'react-native-vector-icons/Entypo';
+import Fontisto from 'react-native-vector-icons/Fontisto';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+
+import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
+
+export default function AllFeatured({navigation, route}) {
   const [loading, setLoading] = useState(false);
   const [allFeaturedCarOwners, setAllFeaturedCarOwners] = useState([]);
 
   let onEndReachedCalledDuringMomentum = false;
   const [lastDoc, setLastDoc] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingData, setLoadingData] = useState(true);
   const [isMoreLoading, setIsMoreLoading] = useState(false);
 
   useEffect(() => {
@@ -24,13 +37,17 @@ export default function AllFeatured() {
 
   navigation.addListener('focus', () => setLoading(!loading));
 
-  const featuredCarOwners = firestore().collectionGroup('CarOwners');
+  const featuredCarOwners = firestore().collectionGroup('CarOwner');
 
   async function getAllFeatured() {
     const snapshot = await featuredCarOwners
-      .where('isFeatured', '==', true)
+      .where('isPromoted', '==', true)
+      .orderBy('rating', 'desc')
       .limit(10)
-      .get();
+      .get()
+      .catch(err => {
+        console.log(err);
+      });
 
     if (!snapshot.empty) {
       let newList = [];
@@ -41,7 +58,8 @@ export default function AllFeatured() {
         newList.push(snapshot.docs[i].data());
       }
 
-      setAllFeaturedCarOwners(newUsers);
+      setAllFeaturedCarOwners(newList);
+      setLoadingData(false);
     } else {
       setLastDoc(null);
     }
@@ -56,9 +74,13 @@ export default function AllFeatured() {
       setTimeout(async () => {
         let snapshot = await featuredCarOwners
           .where('isFeatured', '==', true)
+          .orderBy('rating', 'desc')
           .startAfter(lastDoc.data().uniqueID)
           .limit(10)
-          .get();
+          .get()
+          .catch(err => {
+            console.log(err);
+          });
 
         if (!snapshot.empty) {
           let newList = allFeaturedCarOwners;
@@ -82,9 +104,23 @@ export default function AllFeatured() {
     onEndReachedCalledDuringMomentum = true;
   }
 
+  async function addToCarsViewedBy({make, model, carOwnerID}) {
+    await firestore()
+      .collection('CarMake')
+      .doc(make)
+      .collection('CarModel')
+      .doc(model)
+      .collection('CarOwner')
+      .doc(carOwnerID)
+      .update({
+        carViewedBy: firestore.FieldValue.arrayUnion(carOwnerID),
+      })
+      .catch(err => console.log(err));
+  }
+
   const onRefresh = () => {
     setTimeout(() => {
-      getAllUsersList();
+      getAllFeatured();
     }, 1000);
   };
 
@@ -107,7 +143,7 @@ export default function AllFeatured() {
           <RefreshControl refreshing={isLoading} onRefresh={onRefresh} />
         }
         initialNumToRender={10}
-        onEndReachedThreshold={0.01}
+        onEndReachedThreshold={0}
         onMomentumScrollBegin={() => {
           onEndReachedCalledDuringMomentum = false;
         }}
@@ -178,7 +214,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
-    padding: 20,
   },
   introTextContainer: {
     padding: 20,
