@@ -1,10 +1,16 @@
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import React from 'react';
+import auth from '@react-native-firebase/auth';
 
 export default function Settings() {
   return (
-    <View>
-      <Text>Settings</Text>
+    <View style={{flex: 1}}>
+      <TouchableOpacity
+        onPress={async () => {
+          await auth().signOut();
+        }}>
+        <Text>Logout</Text>
+      </TouchableOpacity>
     </View>
   );
 }

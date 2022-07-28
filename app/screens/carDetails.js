@@ -85,10 +85,10 @@ export default function CarDetails({navigation, route}) {
           </Text>
         </View>
 
-        <View style={styles.ratingContainer}>
+        {/* <View style={styles.ratingContainer}>
           <Text style={styles.ratingText}>{route.params.rating}</Text>
           <AntDesign name="star" size={12} color="yellow" />
-        </View>
+        </View> */}
       </TouchableOpacity>
 
       <View style={styles.carSpecs}>
@@ -201,11 +201,11 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   toProfile: {
-    height: 80,
     backgroundColor: '#1a1a1a',
     padding: 10,
     flexDirection: 'row',
     alignItems: 'center',
+    paddingVertical: 20,
   },
   dealerDetailsContainer: {
     marginLeft: 20,
@@ -249,10 +249,9 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   carSpecsItem: {
-    width: '45%',
+    width: '48%',
     borderRadius: 20,
     height: 80,
-    margin: 10,
     backgroundColor: colors.background,
     flexDirection: 'row',
     alignItems: 'center',
@@ -265,9 +264,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 1,
     shadowRadius: 10,
     elevation: 10,
+    marginBottom: 10,
   },
   specific: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: '800',
     marginLeft: 10,
     color: 'gray',
@@ -280,6 +280,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: 20,
     marginHorizontal: 20,
+    marginBottom: 100,
   },
   btnText: {
     color: 'white',

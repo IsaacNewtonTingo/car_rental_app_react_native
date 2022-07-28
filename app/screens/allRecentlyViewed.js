@@ -177,10 +177,10 @@ export default function AllRecentlyViewed({navigation, route}) {
                 {item.make} {item.model}
               </Text>
 
-              <View style={styles.ratingContainer}>
+              {/* <View style={styles.ratingContainer}>
                 <Text style={styles.ratingText}>{item.rating}</Text>
                 <AntDesign name="star" size={10} color={colors.yellow} />
-              </View>
+              </View> */}
               <Text style={styles.featdataText}>{item.owner}</Text>
               <Text style={styles.featdataText}>{item.phoneNumber}</Text>
               <Text style={styles.featdataText}>{item.rate} / day</Text>

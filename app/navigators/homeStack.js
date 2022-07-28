@@ -134,7 +134,7 @@ export default function HomeStack() {
         name="AllRecentlyViewed"
         component={AllRecentlyViewed}
         options={{
-          headerTitle: '',
+          headerTitle: 'Recently viewed',
         }}
       />
 
@@ -150,7 +150,7 @@ export default function HomeStack() {
         name="AllHotDeals"
         component={AllHotDeals}
         options={{
-          headerTitle: '',
+          headerTitle: 'Hot deals',
         }}
       />
     </Stack.Navigator>

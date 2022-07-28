@@ -73,7 +73,7 @@ export default function AllFeatured({navigation, route}) {
 
       setTimeout(async () => {
         let snapshot = await featuredCarOwners
-          .where('isFeatured', '==', true)
+          .where('isPromoted', '==', true)
           .orderBy('rating', 'desc')
           .startAfter(lastDoc.data().uniqueID)
           .limit(10)
@@ -194,10 +194,10 @@ export default function AllFeatured({navigation, route}) {
                 {item.make} {item.model}
               </Text>
 
-              <View style={styles.ratingContainer}>
+              {/* <View style={styles.ratingContainer}>
                 <Text style={styles.ratingText}>{item.rating}</Text>
                 <AntDesign name="star" size={10} color={colors.yellow} />
-              </View>
+              </View> */}
               <Text style={styles.featdataText}>{item.owner}</Text>
               <Text style={styles.featdataText}>{item.phoneNumber}</Text>
               <Text style={styles.featdataText}>{item.rate} / day</Text>

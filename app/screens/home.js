@@ -26,7 +26,6 @@ import firestore from '@react-native-firebase/firestore';
 export default function Home({navigation}) {
   const [noData, setNoData] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
-  const [loading, setLoading] = useState(true);
 
   const [carsList, setCarsList] = useState([]);
   const [promotedCarsList, setPromotedCarsList] = useState([]);
@@ -38,6 +37,8 @@ export default function Home({navigation}) {
   const [searchValue, setSearchValue] = useState('');
 
   const currentUserID = auth().currentUser.uid;
+
+  const [loading, setLoading] = useState(true);
   navigation.addListener('focus', () => setLoading(!loading));
 
   const B = props => (
@@ -388,10 +389,10 @@ export default function Home({navigation}) {
                 {item.make} {item.model}
               </Text>
 
-              <View style={styles.ratingContainer}>
+              {/* <View style={styles.ratingContainer}>
                 <Text style={styles.ratingText}>{item.rating}</Text>
                 <AntDesign name="star" size={10} color={colors.yellow} />
-              </View>
+              </View> */}
               <Text style={styles.featdataText}>{item.owner}</Text>
               <Text style={styles.featdataText}>{item.phoneNumber}</Text>
               <Text style={styles.featdataText}>{item.rate} / day</Text>
@@ -404,7 +405,8 @@ export default function Home({navigation}) {
       <View style={styles.featuredAndViewAll}>
         <Text style={styles.featTexts}>Recently viewed</Text>
 
-        <TouchableOpacity onPress={() => navigation.navigate('AllHotDeals')}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('AllRecentlyViewed')}>
           <Text style={styles.featTexts}>View all</Text>
         </TouchableOpacity>
       </View>

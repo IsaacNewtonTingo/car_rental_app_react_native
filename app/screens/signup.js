@@ -92,6 +92,8 @@ export default function SignUp({navigation}) {
           empty();
           setIsPosting(false);
         });
+
+      
     }
   };
   return (

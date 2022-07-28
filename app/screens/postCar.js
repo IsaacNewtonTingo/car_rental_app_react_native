@@ -183,7 +183,7 @@ export default function PostCar() {
           phoneNumber: phoneNumber,
           location: location,
           isPromoted: true,
-          datePromoted: '',
+          datePromoted: Date.now(),
           rating: 0,
           uniqueID: uuid.v4(),
           savedBy: [],
